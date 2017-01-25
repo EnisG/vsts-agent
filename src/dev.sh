@@ -312,6 +312,18 @@ function package ()
     popd > /dev/null
 }
 
+function migrate ()
+{
+     echo Generating project.json files ...		
+     for dir_name in ${build_dirs[@]}		
+     do		
+         rm $dir_name/project.json		
+         sed -e "s/OS_WINDOWS/$define_os/g" ./$dir_name/_project.json > ./$dir_name/project.json		
+     done
+
+     dotnet migrate "$SCRIPT_DIR"
+}
+
 case $DEV_CMD in
    "build") build;;
    "b") build;;
@@ -330,6 +342,7 @@ case $DEV_CMD in
    "p") package;;
    "validate") validate;;
    "v") validate;;
+   "m") migrate;;
    *) echo "Invalid cmd.  Use build, restore, clean, test, or layout";;
 esac
 
