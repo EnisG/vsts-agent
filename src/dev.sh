@@ -71,17 +71,20 @@ function rundotnet ()
     heading ${1} ...
 
     cfg_args=""
+    msbuild_args=""
     if [[ ("$dotnet_cmd" == "build") || ("$dotnet_cmd" == "publish") ]]; then
         cfg_args="-c ${BUILD_CONFIG}"
+        msbuild_args="//v:q //p:OSConstant=${define_os}"
         echo "${cfg_args}"
+        echo "${msbuild_args}"
     fi
-    
+
     for dir_name in ${run_dirs[@]}
     do
         echo
         echo -- Running: dotnet $dotnet_cmd $dir_name --
         echo
-        dotnet ${dotnet_cmd} $dir_name $cfg_args || ${err_handle} "${dotnet_cmd} $dir_name"
+        dotnet ${dotnet_cmd} $dir_name $cfg_args $msbuild_args|| ${err_handle} "${dotnet_cmd} $dir_name"
     done   
 }
 
@@ -140,13 +143,6 @@ function build ()
 
 function restore ()
 {
-    echo Generating project.json files ...
-    for dir_name in ${build_dirs[@]}
-    do
-        rm $dir_name/project.json
-        sed -e "s/OS_WINDOWS/$define_os/g" ./$dir_name/_project.json > ./$dir_name/project.json
-    done
-
     rundotnet restore warn build_dirs[@]
 }
 
